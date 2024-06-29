@@ -1,7 +1,6 @@
 `timescale 1ns/1ps
 
 module tb_PC;
-
   logic clk_i;
   logic br_sel_i;
   logic [31:0] alu_data_i;
@@ -20,39 +19,38 @@ module tb_PC;
   end
 
   initial begin
-    $monitor("Time: %0t         | clk_i: %0b  | alu_data_i: %h  | br_sel_i: %0b  | pc_o: %h", 
-             $time,               clk_i,        alu_data_i,       br_sel_i,        pc_o);
+    $monitor("Time: %0t  | clk_i: %0b  | alu_data_i: %h  | br_sel_i: %0b  | pc_o: %h", $time, clk_i, alu_data_i, br_sel_i, pc_o);
     
-	 alu_data_i = 32'hFFFF_FFFF;
+    alu_data_i = 32'hFFFF_FFFF;
     br_sel_i   = 1;           //PC+4
 	 
-	 #200;   
+    #200;   
     alu_data_i = 32'h12345600;
-	 br_sel_i   = 0;           //ALU_data
+    br_sel_i   = 0;           //ALU_data
     #50 check_PC_ALUdata();
-	 #50;
-	 br_sel_i   = 1;
-    
-	 #200;
-	 alu_data_i = 32'h87654300;
-	 br_sel_i   = 0;
-	 #50 check_PC_ALUdata(); 
     #50;
-	 br_sel_i   = 1;
-	 
-	 #200;
-	 alu_data_i = 32'hA5A5A500;
-	 br_sel_i   = 0;
-    #50 check_PC_ALUdata();
-	 #50;
-	 br_sel_i   = 1;
+    br_sel_i   = 1;
+    
+    #200;
+    alu_data_i = 32'h87654300;
+    br_sel_i   = 0;
+    #50 check_PC_ALUdata(); 
+    #50;
+    br_sel_i   = 1;
 	 
     #200;
-	 alu_data_i = 32'hF0F0F000;
-	 br_sel_i   = 0;
+    alu_data_i = 32'hA5A5A500;
+    br_sel_i   = 0;
+    #50 check_PC_ALUdata();
+    #50;
+    br_sel_i   = 1;
+	 
+    #200;
+    alu_data_i = 32'hF0F0F000;
+    br_sel_i   = 0;
     #50 check_PC_ALUdata(); 
-	 #50;
-	 br_sel_i   = 1;
+    #50;
+    br_sel_i   = 1;
 	 
     #200 $finish;
   end
