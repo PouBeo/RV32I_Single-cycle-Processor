@@ -12,9 +12,7 @@ module PC_block
 (
   input  logic  clk_i ,
   input  logic  br_sel_i ,
-  
   input  logic [31:0] alu_data_i ,
-  
   output logic [31:0] pc_o
 );
   
@@ -48,7 +46,6 @@ endmodule: PC_block
 module mux2_1_32b
 (
   input  logic  sel_i ,
-
   input  logic [31:0] data0_i ,
   input  logic [31:0] data1_i ,
 
@@ -58,6 +55,3 @@ module mux2_1_32b
   assign data_o = (sel_i) ? data1_i : data0_i ;
   
 endmodule: mux2_1_32b
-  
-
-
