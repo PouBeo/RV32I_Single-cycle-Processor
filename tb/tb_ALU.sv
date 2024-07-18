@@ -8,13 +8,12 @@ module tb_ALU;
   logic [31:0] alu_o;
 
   ALU uut (   
-	.operand1_i	( a_i	),
-	.operand2_i	( b_i	),
+	.operand1_i ( a_i	),
+	.operand2_i ( b_i	),
 	.alu_op_i   ( sel_i	),
 	.alu_data_o ( alu_o	));
 
   task tk_expect(input logic [31:0] alu_x );
-
     $display("[%3d] a_i = %10h, b_i = %10h,  sel_i = %7d, alu_x = %10h, alu_o = %10h", $time, a_i, b_i, sel_i, alu_x, alu_o ); 
     assert( (alu_x == alu_o)) else begin
       $display("TEST FAILED");
@@ -83,8 +82,8 @@ module tb_ALU;
     b_i = $random;
     sel_i = 4'd6;
     alu_x = a_i >> b_i[4:0]; 
-      #1 tk_expect(alu_x);
-      #49;
+     #1 tk_expect(alu_x);
+     #49;
     end
 
     repeat(100) begin  // SRA TEST
@@ -110,8 +109,8 @@ module tb_ALU;
     b_i = $random;
     sel_i = 4'd9;
     alu_x = a_i & b_i; 
-      #1 tk_expect(alu_x);
-      #49;
+     #1 tk_expect(alu_x);
+     #49;
     end
 
     repeat(100) begin  // LUI TEST
