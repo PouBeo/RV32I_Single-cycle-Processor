@@ -164,7 +164,7 @@ module tb_lsu;
          st_data_i  = $random     ;
 	 io_sw_i    = 32'hFFFFFFFF;
   	 io_push_i  = 32'hFFFFFFFF;
-sten_i = 1;
+         sten_i = 1;
 	 #20;
          LSU_result();
 	 #20;
