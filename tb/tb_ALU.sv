@@ -60,7 +60,6 @@ module tb_ALU;
     end
  
 
-
     repeat(100) begin  // SLTU TEST
     a_i = $random;
     b_i = $random;
