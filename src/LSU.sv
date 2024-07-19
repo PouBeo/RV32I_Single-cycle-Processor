@@ -81,7 +81,7 @@ module lsu(
   end
 
   // Input-peripherals_mem	
-	always @(posedge clk_i) begin : write_to_IPMEM
+  always @(posedge clk_i) begin : write_to_IPMEM
     if (io_sw_i !== io_sw_prev) begin
       ip_mem[6'b0000_00][0] = io_sw_i[ 7: 0];
       ip_mem[6'b0000_00][1] = io_sw_i[15: 8];
