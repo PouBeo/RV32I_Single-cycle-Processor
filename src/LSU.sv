@@ -54,7 +54,7 @@ module lsu(
         d_mem[addr_i[10:2]][3] <= st_data_i[31:24];
       end
     end
-	 if ((addr_i[11]) && (sten_i)) begin
+    if ((addr_i[11]) && (sten_i)) begin
       if (byte_num_i[0]) begin
         op_mem[addr_i[7:2]][0] <= st_data_i[ 7: 0];
       end
@@ -68,7 +68,7 @@ module lsu(
         op_mem[addr_i[7:2]][3] <= st_data_i[31:24];
       end
     end
-	 if (!rst_ni) begin
+    if (!rst_ni) begin
 	   for (int i = 0; i < (2**9); i++) begin
          d_mem[i] <= 32'h0;
 		end
