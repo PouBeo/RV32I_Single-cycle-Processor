@@ -1,5 +1,7 @@
 /////////////////////////////////////////////////////////////////////
 // Module: Load-Store Unit
+// Description:
+// Memory mapping:
 /////////////////////////////////////////////////////////////////////
 
 module lsu(
@@ -120,11 +122,11 @@ module lsu(
   assign  io_hex1_o =  op_mem[6'b0001_00]; // 10
   assign  io_hex0_o =  op_mem[6'b0000_00]; // 00
   
-  assign  ld_data_d  =  d_mem[addr_i[10:2]];
+  assign  ld_data_d   =   d_mem[addr_i[10:2]];
   assign  ld_data_op  =  op_mem[addr_i[ 7:2]];
   assign  ld_data_ip  =  ip_mem[addr_i[ 7:2]];
   
-  assign addr_sel = {addr_i[11], addr_i[8]} ;
+  assign addr_sel = {addr_i[11], addr_i[8]};
 
   lsu_mux3to1_32b LD_Sel ( .sel_i  ( addr_sel   ),
                            .data0_i( ld_data_d  ),
