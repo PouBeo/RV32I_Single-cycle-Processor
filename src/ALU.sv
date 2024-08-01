@@ -52,7 +52,9 @@ module ALU
 
 endmodule: ALU
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 module fulladder
 (
@@ -64,12 +66,12 @@ module fulladder
 
 endmodule:  fulladder
 
-///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 module addsub_4b
 (
   input  logic [3:0] A, B,
-  input 	logic sel, Cin,
+  input  logic sel, Cin,
   output logic [3:0] S,
   output logic	Co, V
 );
@@ -90,8 +92,7 @@ module addsub_4b
   
 endmodule: addsub_4b
 
-
-///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 module addsub_32b 
 (
@@ -118,25 +119,24 @@ endmodule: addsub_32b
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-module set_less_than
-(
-  input  logic s_in1, s_in2, s_sub,  // sign of in1, in2 and sub (in1 - in2)
-
-  output logic slt
-);  
-
-  // CASE { sign_of_A != sign_of_B }: base on sign-bit => avoid overflow case when using SUB
+// Module: set-less-than
+// Description: base on sign of data from add/sub 32-bit module, there's a summary of case for set less
+//// CASE { sign_of_A != sign_of_B }: base on sign-bit => avoid overflow case when using SUB:
 //// [ -A; +B] => ( slt = 1 ) 
 //// [ +A; -B] => ( slt = 0 )
 ////           => ( slt = sign_of_A ) 
-
-  // CASE { sign_of_A  = sign_of_B }: overflow not happen when operating SUB with the same sign of A and B
+//// CASE { sign_of_A  = sign_of_B }: overflow not happen when operating SUB with the same sign of A and B:
 //// [ -A - (-B) >= 0 ] => ( slt = 0 )
 //// [ +A - (+B) >= 0 ] => ( slt = 0 )
 //// [ -A - (-B)  < 0 ] => ( slt = 1 )
 //// [ +A - (+B)  < 0 ] => ( slt = 1 )
 ////                    => (slt = sign_of_A-B )
- 
+
+module set_less_than
+(
+  input  logic s_in1, s_in2, s_sub,  // sign of in1, in2 and sub (in1 - in2)
+  output logic slt
+);   
   always_comb begin
     if ( s_in1 != s_in2 ) begin
       slt = s_in1 ;
