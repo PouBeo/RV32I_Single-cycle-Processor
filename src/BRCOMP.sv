@@ -1,15 +1,14 @@
-`include "D:/BKU/CTMT/2011919_Processor/ALU.sv"  
-
-module BRCOMP(
+module BRCOMP
+(
   input  logic [31:0]  rs1_data_i,
   input  logic [31:0]  rs2_data_i,
   input  logic  br_unsigned_i,
   output logic  br_less_o,
   output logic  br_equal_o
 );
-  logic [31:0] sub_result ;
-  logic  slt_temp ;
-  logic sltu_temp ;
+  logic [31:0] sub_result;
+  logic  slt_temp;
+  logic sltu_temp;
   logic bg_u, sl_u, eq_u;
   
   addsub_32b BRCOMP_SUB (.A( rs1_data_i ), .B( rs2_data_i ), .add_sub( 1'b1 ), .S( sub_result ), .carry_o( sltu_temp ));
@@ -18,7 +17,7 @@ module BRCOMP(
 
   assign br_equal_o = eq_u ; // if A = B, both unsigned or signed can be found y comparator
   
-  always_comb begin: UNSIGN
+  always_comb begin: UNSIGNED
     if ( br_unsigned_i ) begin
       br_less_o = ~sltu_temp ; // when br_unsigned_i = 1, br_less_o can be assigned by sl_u from comparator instead
       end
@@ -30,7 +29,7 @@ module BRCOMP(
 endmodule: BRCOMP
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This is the |...| comparator: unsign
+
 module comparator_4b(
   input  logic [ 3:0] A, B,
   output logic AbgB, AslB, AeqB
@@ -48,13 +47,16 @@ module comparator_4b(
   assign AslB = B[3]&(~A[3]) | (eq[3])&B[2]&(~A[2]) | (eq[3])&(eq[2])&B[1]&(~A[1]) | (eq[3])&(eq[2])&(eq[1])&B[0]&(~A[0]) ;
 
   /*  // Simply A smaller than B when A NOT (bigger or equal) B:
-      assign AslB = ~ (AeqB & AbgB) ;  */ 
+      assign AslB = ~ (AeqB & AbgB) ;  */
 
 endmodule: comparator_4b
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This module can be used as ic7485
-// Function: 
+
+//////////////////////////////////////////////////////////////
+// Module: comparator_4b_io
+// Function: This module can be used as ic7485 - comparator
+//////////////////////////////////////////////////////////////
 
 module comparator_4b_io(
   input  logic [ 3:0] A, B,
@@ -85,7 +87,7 @@ module comparator_8b_io(
   comparator_4b_io HIGH_haflbyte (.A( A[7:4] ), .B( B[7:4] ),
                                   .AbgB_i(  bg_io ), .AslB_i(  sl_io ), .AeqB_i(  eq_io ),
                                   .AbgB_o( AbgB_o ), .AslB_o( AslB_o ), .AeqB_o( AeqB_o ));
-											 
+
   comparator_4b_io  LOW_haflbyte (. A( A[3:0] ), .B( B[3:0] ),
                                   .AbgB_i(  AbgB_i ), .AslB_i(  AslB_i ), .AeqB_i(  AeqB_i ),
                                   .AbgB_o(   bg_io ), .AslB_o(   sl_io ), .AeqB_o(  eq_io ));
@@ -99,12 +101,12 @@ module comparator_32b_io(
   output logic AbgB_o, AslB_o, AeqB_o
 );
   logic bg_B0, sl_B0, eq_B0; // output flag of comparison between "Byte 0" of A, B
-  logic bg_B1, sl_B1, eq_B1; 
-  logic bg_B2, sl_B2, eq_B2; 
+  logic bg_B1, sl_B1, eq_B1;
+  logic bg_B2, sl_B2, eq_B2;
 
   comparator_8b_io byte_07_00 (.A( A[ 7: 0] ), .B( B[ 7: 0] ), .AbgB_i(  AbgB_i ), .AslB_i(  AslB_i ), .AeqB_i(  AeqB_i ), .AbgB_o(  bg_B0 ), .AslB_o(  sl_B0 ), .AeqB_o(  eq_B0 ));
   comparator_8b_io byte_15_08 (.A( A[15: 8] ), .B( B[15: 8] ), .AbgB_i(   bg_B0 ), .AslB_i(   sl_B0 ), .AeqB_i(   eq_B0 ), .AbgB_o(  bg_B1 ), .AslB_o(  sl_B1 ), .AeqB_o(  eq_B1 ));
-  comparator_8b_io byte_23_16 (.A( A[23:16] ), .B( B[23:16] ), .AbgB_i(   bg_B1 ), .AslB_i(   sl_B1 ), .AeqB_i(   eq_B1 ), .AbgB_o(  bg_B2 ), .AslB_o(  sl_B2 ), .AeqB_o(  eq_B2 ));								 
+  comparator_8b_io byte_23_16 (.A( A[23:16] ), .B( B[23:16] ), .AbgB_i(   bg_B1 ), .AslB_i(   sl_B1 ), .AeqB_i(   eq_B1 ), .AbgB_o(  bg_B2 ), .AslB_o(  sl_B2 ), .AeqB_o(  eq_B2 ));
   comparator_8b_io byte_31_24 (.A( A[31:24] ), .B( B[31:24] ), .AbgB_i(   bg_B2 ), .AslB_i(   sl_B2 ), .AeqB_i(   eq_B2 ), .AbgB_o( AbgB_o ), .AslB_o( AslB_o ), .AeqB_o( AeqB_o ));
 
 endmodule: comparator_32b_io
