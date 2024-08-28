@@ -1,0 +1,152 @@
+/*******************************************************************************************/
+/**                                                                                       **/
+/** ___Function_________________________                                                  **/
+/** - This is a simple application of using RV32I instruction set on the DE2 FPGA kit,    **/
+/**   which has been designed according to the RV32I architecture.                        **/
+/** - There are 18 switches on DE2 kit (SW[17:0]), use SW[15:0] to make 4 4-bit binary,   **/
+/**   which will be converted and display their BCD hex digit on HEX3 to HEX0.            **/
+/** - Flow: SW[16] is used as an active switch: converts when ( SW[16] == 1 ), unchanges  **/
+/**   for else.                                                                           **/
+/**                                                                                       **/
+/** ___Note_________________________                                                      **/
+/** - This assembly program was compile on "https://riscvasm.lucasteske.dev/#", because   **/
+/**   of it's suitable memory range.                                                      **/
+/**                                                                                       **/
+/*******************************************************************************************/
+
+/**********************************************************************/
+/**                                                                  **/
+/** ___Mappinng_________________________                             **/
+/** - Data-mem from x000 to x7FF                                     **/
+/** - Output_Peripherals-mem from x000 to x7FF, with special:        **/
+/**     HEX0: x800                                                   **/
+/**     HEX1: x810                                                   **/
+/**     HEX2: x820                                                   **/
+/**     HEX3: x830                                                   **/
+/**     HEX4: x840                                                   **/
+/**     HEX5: x850                                                   **/
+/**     HEX6: x860                                                   **/
+/**     HEX7: x870                                                   **/
+/**     LEDr: x880                                                   **/
+/**     LEDg: x890                                                   **/
+/**     LCD : x8A0                                                   **/
+/** - Input_Peripherals-mem from x900 to x910, with special:         **/
+/**     SW  : x900                                                   **/
+/**     KEY : x910                                                   **/
+/**                                                                  **/
+/**********************************************************************/
+
+/*   REG store peripherals's address   */
+addi  x9,  x0, 0x400
+addi x10,  x9, 0x400   /*   LED0: x800   */
+addi x11, x10, 0x10    /*   LED1: x810   */
+addi x12, x10, 0x20    /*   LED2: x820   */
+addi x13, x10, 0x30    /*   LED3: x830   */
+addi x14, x10, 0x40    /*   LED4: x840   */
+addi x15, x10, 0x50    /*   LED5: x850   */
+addi x16, x10, 0x60    /*   LED6: x860   */
+addi x17, x10, 0x70    /*   LED7: x870   */
+addi x18, x10, 0x80    /*   LEDr: x880   */
+addi x19, x10, 0x90    /*   LEDg: x890   */
+addi x20, x10, 0xA0    /*   LCD : x8A0   */
+addi x21, x10, 0x100   /*   SW  : x900   */
+addi x22, x10, 0x110   /*   KEY : x910   */
+
+/* MEM address store dec_leg7_a-common */
+addi x2,  x0,   64       /* 0: x400 */
+sb   x2,        0(x9)
+addi x2,  x0,   121      /* 1: x404 */
+sb   x2,        4(x9)
+addi x2,  x0,   36       /* 2: x408 */
+sb   x2,        8(x9)
+addi x2,  x0,   48       /* 3: x40C */
+sb   x2,        12(x9)
+addi x2,  x0,   25       /* 4: x410 */
+sb   x2,        16(x9)
+addi x2,  x0,   18       /* 5: x414 */
+sb   x2,        20(x9)
+addi x2,  x0,   2        /* 6: x418 */
+sb   x2,        24(x9)
+addi x2,  x0,   120      /* 7: x41C */
+sb   x2,        28(x9)
+addi x2,  x0,   0        /* 8: x420 */
+sb   x2,        32(x9)
+addi x2,  x0,   16       /* 9: x424 */
+sb   x2,        36(x9)
+addi x2,  x0,   8        /* A: x428 */
+sb   x2,        40(x9)
+addi x2,  x0,   3        /* b: x42C */
+sb   x2,        44(x9)
+addi x2,  x0,   70       /* C: x430 */
+sb   x2,        48(x9)
+addi x2,  x0,   33       /* d: x434 */
+sb   x2,        52(x9)
+addi x2,  x0,   6        /* E: x438 */
+sb   x2,        56(x9)
+addi x2,  x0,   14       /* F: x43C */
+sb   x2,        60(x9)
+
+begin:
+lw   x5, 0(x21)
+sw   x5, 0(x18)
+lui  x6, 16            /* x6 = 10_000h --> x6[16]=1 */
+and  x6, x5, x6        /* check SW[16] */
+beq  x6, x0, begin     /* wait until SW[16] = 1 */
+beq  x4, x5, begin     /* if SW unchanges, do nothing */
+addi x4, x5, 0         /* update x4 for new SW */
+addi x2, x0, -1        /* reset x2 to loop 4 times for hexs in convert_loop */
+
+convert:
+andi x7, x5, 0xF       /* take out 4 last bits */
+addi x6, x0, 4
+addi x2, x2, 1
+bge  x2, x6, begin
+addi x6, x0, 0         /* reset x6 to loop 16 times for 16 hex numbers in compare_loop */
+addi x9, x0, 0x400     /* reset x9 to increase-4 16 times for 16 addresses in compare_loop */
+compare:
+beq  x6, x7, hex_out   /* if sw value in x7 == x6, driving led7 value stored in [x9] is taken out */
+addi x6, x6, 1
+add  x9, x9, 4
+jal  compare
+
+hex_out:
+lw x8, 0( x9)
+addi x6, x0, 0
+beq  x2, x6, hex0     /* check hex by using x2 */
+addi x6, x6, 1
+beq  x2, x6, hex1
+addi x6, x6, 1
+beq  x2, x6, hex2
+addi x6, x6, 1
+beq  x2, x6, hex3
+jal  error
+
+hex0:
+sw x8, 0(x10)
+jal next_hex
+
+hex1:
+sw x8, 0(x11)
+jal next_hex
+
+hex2:
+sw x8, 0(x12)
+jal next_hex
+
+hex3:
+sw x8, 0(x13)
+jal next_hex
+
+next_hex:
+srli x5, x5, 4    
+jal convert
+
+error:
+addi x9, x0, 0x400
+lb   x2,        60(x9)  /* show FFFF */
+sb   x2,        0(x14)
+sb   x2,        0(x13)
+sb   x2,        0(x12)
+sb   x2,        0(x11)
+sb   x2,        0(x10)
+jal  compare
