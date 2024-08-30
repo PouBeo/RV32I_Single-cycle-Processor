@@ -48,14 +48,6 @@ module _2011919_SingleCycleProcessor
   assign HEX5 = io_hex5[6:0];
   assign HEX6 = io_hex6[6:0];
   assign HEX7 = io_hex7[6:0];
-  /*assign HEX0 = ~io_hex0[6:0];
-  assign HEX1 = ~io_hex1[6:0];
-  assign HEX2 = ~io_hex2[6:0];
-  assign HEX3 = ~io_hex3[6:0];
-  assign HEX4 = ~io_hex4[6:0];
-  assign HEX5 = ~io_hex5[6:0];
-  assign HEX6 = ~io_hex6[6:0];
-  assign HEX7 = ~io_hex7[6:0];*/
 
   assign LEDG[7:0]  = io_ledg[7:0];
   assign LEDR = io_ledr[17:0];
