@@ -1,4 +1,4 @@
-`include "D:/BKU/CTMT/2011919_Processor/Parameter.sv"
+`include "D:/BKU/CTMT/2011919_Pipelined_Processor/Parameter.sv"
 module ctrl_unit
 (
     input  logic [31:0] instr_i,
@@ -37,7 +37,7 @@ module ctrl_unit
   localparam  OP_JAL   = 7'b11011_11;  // jump and link
 
   // Funct_3 of OP_ALU_R
-  localparam  ADD  =   3'b000;      
+  localparam  ADD  =   3'b000;
   localparam  SLL  =   3'b001;
   localparam  SLT  =   3'b010;
   localparam  SLTU =   3'b011;
@@ -75,7 +75,7 @@ module ctrl_unit
   localparam  BGE  = 3'b101;
   localparam  BLTU = 3'b110;
   localparam  BGEU = 3'b111;
-    
+  
   always_comb begin
     case( op )
      // OPCODE
@@ -164,7 +164,7 @@ module ctrl_unit
                     mem_us_o      = 1'bx;
                     op_a_sel_o    = 1'b0;    // rs1 selected
                     op_b_sel_o    = 1'b1;    // imm selected
-                    wb_sel_o      = 2'dx;
+                    wb_sel_o      = 2'd0;
                     rd_wren_o     = 1'b0;    // not write to rd
                     case ( funct3 )
                            SB :  mem_wrnum_o   = 4'b0001; // byte
@@ -213,7 +213,6 @@ module ctrl_unit
                     end
      // OPCODE
         OP_BR     : begin
-                    // br_sel_o
                     imm_sel_o     = `BTYPE;
                     alu_op_o      = `ADD;
                     mem_wren_o    = 1'b0;
@@ -284,7 +283,7 @@ module ctrl_unit
                     end
          default   : begin
                     br_sel_o      = 1'b0;
-                    imm_sel_o     = 4'b0;
+                    imm_sel_o     = 2'b0;
                     alu_op_o      = 4'b0;
                     br_unsigned_o = 1'b0;
                     mem_wren_o    = 1'b0;

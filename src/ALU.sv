@@ -1,33 +1,30 @@
-`include "D:/BKU/CTMT/2011919_Processor/Parameter.sv"
-/////////////////////////////////////////////////////////////////////
-// Module: ALU
-// Description:
-/////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
+`include "D:/BKU/CTMT/2011919_Pipelined_Processor/Parameter.sv"
 module ALU
 (
-  input  logic [31:0] operand1_i,
-  input  logic [31:0] operand2_i,
-  input  logic [ 3:0] alu_op_i,
+  input  logic [31:0] operand1_i ,
+  input  logic [31:0] operand2_i ,
+  input  logic [ 3:0] alu_op_i ,
   
   output logic [31:0] alu_data_o
 );
-  logic [31:0] add_result;
-  logic [31:0] sub_result;
-  logic [31:0] sll_result;
-  logic [31:0] slt_result;
-  logic [31:0] sltu_result;
-  logic [31:0] srl_result;
-  logic [31:0] sra_result;
+  logic [31:0] add_result ;
+  logic [31:0] sub_result ;
+  logic [31:0] sll_result ;
+  logic [31:0] slt_result ;
+  logic [31:0] sltu_result ;
+  logic [31:0] srl_result ;
+  logic [31:0] sra_result ;
 
-  logic slt_temp;
-  logic sltu_temp;
+  logic slt_temp ;
+  logic sltu_temp ;
 
-  addsub_32b        ALU_ADD (.A( operand1_i ), .B( operand2_i ), .add_sub( 1'b0 ), .S( add_result ));
-  addsub_32b        ALU_SUB (.A( operand1_i ), .B( operand2_i ), .add_sub( 1'b1 ), .S( sub_result ), .carry_o( sltu_temp ));
-  shift_left        ALU_SLL (.in1( operand1_i ), .in2( operand2_i[4:0] ), .out( sll_result ));
-  shift_right       ALU_SRL (.in1( operand1_i ), .in2( operand2_i[4:0] ), .out( srl_result ));
-  shift_right_arith ALU_SRA (.in1( operand1_i ), .in2( operand2_i[4:0] ), .out( sra_result ));
-  set_less_than     ALU_SLT (.s_in1( operand1_i[31] ), .s_in2( operand2_i[31] ), .s_sub( sub_result[31] ), .slt( slt_temp ));
+  addsub_32b            ALU_ADD (.A( operand1_i ), .B( operand2_i ), .add_sub( 1'b0 ), .S( add_result ));
+  addsub_32b            ALU_SUB (.A( operand1_i ), .B( operand2_i ), .add_sub( 1'b1 ), .S( sub_result ), .carry_o( sltu_temp ));
+  shift_left_32b        ALU_SLL (.in( operand1_i ), .shamt( operand2_i[4:0] ), .out( sll_result ));
+  shift_right_32b       ALU_SRL (.in( operand1_i ), .shamt( operand2_i[4:0] ), .out( srl_result ));
+  shift_right_arith_32b ALU_SRA (.in( operand1_i ), .shamt( operand2_i[4:0] ), .out( sra_result ));
+  set_less_than         ALU_SLT (.s_in1( operand1_i[31] ), .s_in2( operand2_i[31] ), .s_sub( sub_result[31] ), .slt( slt_temp ));
 
   assign  slt_result  = { 31'b0,   slt_temp } ;
   assign  sltu_result = { 31'b0, ~sltu_temp } ;
@@ -69,9 +66,9 @@ endmodule:  fulladder
 module addsub_4b
 (
   input  logic [3:0] A, B,
-  input 	logic sel, Cin,
+  input  logic sel, Cin,
   output logic [3:0] S,
-  output logic	Co, V
+  output logic Co, V
 );
   logic [2:0] c;
   logic [3:0] b;
@@ -135,7 +132,7 @@ module set_less_than
 //// [ +A - (+B) >= 0 ] => ( slt = 0 )
 //// [ -A - (-B)  < 0 ] => ( slt = 1 )
 //// [ +A - (+B)  < 0 ] => ( slt = 1 )
-////                    => (slt = sign_of_A-B )
+////                    => ( slt = sign_of_A-B )
  
   always_comb begin
     if ( s_in1 != s_in2 ) begin
@@ -147,198 +144,3 @@ module set_less_than
   end
   
 endmodule: set_less_than
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-module shift_left
-(
-  input  logic [31:0] in1,
-  input  logic [ 4:0] in2,
-  output logic [31:0] out
-);
-  logic [31:0] out_temp;
-
-  always_comb begin
-        case (in2)
-               5'b00000: out_temp = in1 ;
-               5'b00001: out_temp = {in1[30:0], 1'b0};
-               5'b00010: out_temp = {in1[29:0], 2'b0};
-               5'b00011: out_temp = {in1[28:0], 3'b0};
-               5'b00100: out_temp = {in1[27:0], 4'b0};
-               5'b00101: out_temp = {in1[26:0], 5'b0};
-               5'b00110: out_temp = {in1[25:0], 6'b0};
-               5'b00111: out_temp = {in1[24:0], 7'b0};
-               5'b01000: out_temp = {in1[23:0], 8'b0};
-               5'b01001: out_temp = {in1[22:0], 9'b0};
-               5'b01010: out_temp = {in1[21:0], 10'b0};
-               5'b01011: out_temp = {in1[20:0], 11'b0};
-               5'b01100: out_temp = {in1[19:0], 12'b0};
-               5'b01101: out_temp = {in1[18:0], 13'b0};
-               5'b01110: out_temp = {in1[17:0], 14'b0};
-               5'b01111: out_temp = {in1[16:0], 15'b0};
-               5'b10000: out_temp = {in1[15:0], 16'b0};
-               5'b10001: out_temp = {in1[14:0], 17'b0};
-               5'b10010: out_temp = {in1[13:0], 18'b0};
-               5'b10011: out_temp = {in1[12:0], 19'b0};
-               5'b10100: out_temp = {in1[11:0], 20'b0};
-               5'b10101: out_temp = {in1[10:0], 21'b0};
-               5'b10110: out_temp = {in1[9:0], 22'b0};
-               5'b10111: out_temp = {in1[8:0], 23'b0};
-               5'b11000: out_temp = {in1[7:0], 24'b0};
-               5'b11001: out_temp = {in1[6:0], 25'b0};
-               5'b11010: out_temp = {in1[5:0], 26'b0};
-               5'b11011: out_temp = {in1[4:0], 27'b0};
-               5'b11100: out_temp = {in1[3:0], 28'b0};
-               5'b11101: out_temp = {in1[2:0], 29'b0};
-               5'b11110: out_temp = {in1[1:0], 30'b0};
-               5'b11111: out_temp = {in1[0], 31'b0};
-           default: out_temp = 32'b0;
-           endcase
-  end
-
-  assign out = out_temp;
-
-endmodule: shift_left
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-module shift_right
-(	
-  input  logic [31:0] in1,
-  input  logic [ 4:0] in2,
-  output logic [31:0] out
-);    
-  logic [31:0] out_temp;
-
-    always_comb begin
-        case (in2)
-                     5'b00000: out_temp = in1;
-                     5'b00001: out_temp = {1'b0, in1[31:1]};
-                     5'b00010: out_temp = {2'b0, in1[31:2]};
-                     5'b00011: out_temp = {3'b0, in1[31:3]};
-                     5'b00100: out_temp = {4'b0, in1[31:4]};
-                     5'b00101: out_temp = {5'b0, in1[31:5]};
-                     5'b00110: out_temp = {6'b0, in1[31:6]};
-                     5'b00111: out_temp = {7'b0, in1[31:7]};
-                     5'b01000: out_temp = {8'b0, in1[31:8]};
-                     5'b01001: out_temp = {9'b0, in1[31:9]};
-                     5'b01010: out_temp = {10'b0, in1[31:10]};
-                     5'b01011: out_temp = {11'b0, in1[31:11]};
-                     5'b01100: out_temp = {12'b0, in1[31:12]};
-                     5'b01101: out_temp = {13'b0, in1[31:13]};
-                     5'b01110: out_temp = {14'b0, in1[31:14]};
-                     5'b01111: out_temp = {15'b0, in1[31:15]};
-                     5'b10000: out_temp = {16'b0, in1[31:16]};
-                     5'b10001: out_temp = {17'b0, in1[31:17]};
-                     5'b10010: out_temp = {18'b0, in1[31:18]};
-                     5'b10011: out_temp = {19'b0, in1[31:19]};
-                     5'b10100: out_temp = {20'b0, in1[31:20]};
-                     5'b10101: out_temp = {21'b0, in1[31:21]};
-                     5'b10110: out_temp = {22'b0, in1[31:22]};
-                     5'b10111: out_temp = {23'b0, in1[31:23]};
-                     5'b11000: out_temp = {24'b0, in1[31:24]};
-                     5'b11001: out_temp = {25'b0, in1[31:25]};
-                     5'b11010: out_temp = {26'b0, in1[31:26]};
-                     5'b11011: out_temp = {27'b0, in1[31:27]};
-                     5'b11100: out_temp = {28'b0, in1[31:28]};
-                     5'b11101: out_temp = {29'b0, in1[31:29]};
-                     5'b11110: out_temp = {30'b0, in1[31:30]};
-                     5'b11111: out_temp = {31'b0, in1[31:31]};
-                endcase
-    end
-
-    assign out = out_temp;
-
-endmodule: shift_right
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-module shift_right_arith 
-(	
-  input  logic [31:0] in1,
-  input  logic [ 4:0] in2,
-  output logic [31:0] out
-);    
-  logic [31:0] out_temp;
-
-    always_comb begin
-        case (in1[31])      
-            0: begin
-                case (in2)
-                     5'b00000: out_temp = in1;
-                     5'b00001: out_temp = {1'b0, in1[31:1]};
-                     5'b00010: out_temp = {2'b0, in1[31:2]};
-                     5'b00011: out_temp = {3'b0, in1[31:3]};
-                     5'b00100: out_temp = {4'b0, in1[31:4]};
-                     5'b00101: out_temp = {5'b0, in1[31:5]};
-                     5'b00110: out_temp = {6'b0, in1[31:6]};
-                     5'b00111: out_temp = {7'b0, in1[31:7]};
-                     5'b01000: out_temp = {8'b0, in1[31:8]};
-                     5'b01001: out_temp = {9'b0, in1[31:9]};
-                     5'b01010: out_temp = {10'b0, in1[31:10]};
-                     5'b01011: out_temp = {11'b0, in1[31:11]};
-                     5'b01100: out_temp = {12'b0, in1[31:12]};
-                     5'b01101: out_temp = {13'b0, in1[31:13]};
-                     5'b01110: out_temp = {14'b0, in1[31:14]};
-                     5'b01111: out_temp = {15'b0, in1[31:15]};
-                     5'b10000: out_temp = {16'b0, in1[31:16]};
-                     5'b10001: out_temp = {17'b0, in1[31:17]};
-                     5'b10010: out_temp = {18'b0, in1[31:18]};
-                     5'b10011: out_temp = {19'b0, in1[31:19]};
-                     5'b10100: out_temp = {20'b0, in1[31:20]};
-                     5'b10101: out_temp = {21'b0, in1[31:21]};
-                     5'b10110: out_temp = {22'b0, in1[31:22]};
-                     5'b10111: out_temp = {23'b0, in1[31:23]};
-                     5'b11000: out_temp = {24'b0, in1[31:24]};
-                     5'b11001: out_temp = {25'b0, in1[31:25]};
-                     5'b11010: out_temp = {26'b0, in1[31:26]};
-                     5'b11011: out_temp = {27'b0, in1[31:27]};
-                     5'b11100: out_temp = {28'b0, in1[31:28]};
-                     5'b11101: out_temp = {29'b0, in1[31:29]};
-                     5'b11110: out_temp = {30'b0, in1[31:30]};
-                     5'b11111: out_temp = {31'b0, in1[31:31]};
-                endcase
-            end
-            1: begin
-                case (in2)
-                     5'b00000: out_temp = in1;
-                     5'b00001: out_temp = {{1{1'b1}}, in1[31:1]};
-                     5'b00010: out_temp = {{2{1'b1}}, in1[31:2]};
-                     5'b00011: out_temp = {{3{1'b1}}, in1[31:3]};
-                     5'b00100: out_temp = {{4{1'b1}}, in1[31:4]};
-                     5'b00101: out_temp = {{5{1'b1}}, in1[31:5]};
-                     5'b00110: out_temp = {{6{1'b1}}, in1[31:6]};
-                     5'b00111: out_temp = {{7{1'b1}}, in1[31:7]};
-                     5'b01000: out_temp = {{8{1'b1}}, in1[31:8]};
-                     5'b01001: out_temp = {{9{1'b1}}, in1[31:9]};
-                     5'b01010: out_temp = {{10{1'b1}}, in1[31:10]};
-                     5'b01011: out_temp = {{11{1'b1}}, in1[31:11]};
-                     5'b01100: out_temp = {{12{1'b1}}, in1[31:12]};
-                     5'b01101: out_temp = {{13{1'b1}}, in1[31:13]};
-                     5'b01110: out_temp = {{14{1'b1}}, in1[31:14]};
-                     5'b01111: out_temp = {{15{1'b1}}, in1[31:15]};
-                     5'b10000: out_temp = {{16{1'b1}}, in1[31:16]};
-                     5'b10001: out_temp = {{17{1'b1}}, in1[31:17]};
-                     5'b10010: out_temp = {{18{1'b1}}, in1[31:18]};
-                     5'b10011: out_temp = {{19{1'b1}}, in1[31:19]};
-                     5'b10100: out_temp = {{20{1'b1}}, in1[31:20]};
-                     5'b10101: out_temp = {{21{1'b1}}, in1[31:21]};
-                     5'b10110: out_temp = {{22{1'b1}}, in1[31:22]};
-                     5'b10111: out_temp = {{23{1'b1}}, in1[31:23]};
-                     5'b11000: out_temp = {{24{1'b1}}, in1[31:24]};
-                     5'b11001: out_temp = {{25{1'b1}}, in1[31:25]};
-                     5'b11010: out_temp = {{26{1'b1}}, in1[31:26]};
-                     5'b11011: out_temp = {{27{1'b1}}, in1[31:27]};
-                     5'b11100: out_temp = {{28{1'b1}}, in1[31:28]};
-                     5'b11101: out_temp = {{29{1'b1}}, in1[31:29]};
-                     5'b11110: out_temp = {{30{1'b1}}, in1[31:30]};
-                     5'b11111: out_temp = {{31{1'b1}}, in1[31:31]};
-
-                endcase
-            end
-        endcase
-    end
-
-    assign out = out_temp;
-
-endmodule: shift_right_arith
